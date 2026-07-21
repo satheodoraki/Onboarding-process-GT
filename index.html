@@ -81,6 +81,7 @@
   .meta{display:flex;align-items:center;gap:9px;margin-top:14px;}
   .avatar{width:26px;height:26px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-family:"Space Grotesk",sans-serif;font-weight:600;font-size:10.5px;color:#fff;background:var(--purple);}
   .avatar.alt{background:var(--teal);}
+  .avatar.gold{background:var(--yellow);color:#3A2A08;}
   .contact-label{font-family:"Space Mono",monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);}
   .contact-name{font-size:13.5px;color:var(--ink-soft);font-weight:500;}
   .check{flex:none;width:30px;height:30px;border-radius:9px;cursor:pointer;border:1.6px solid var(--line-strong);background:#fff;display:flex;align-items:center;justify-content:center;transition:all .18s ease;}
@@ -211,7 +212,7 @@
       </div>
       <div class="eyebrow"><span class="dot"></span> TECH-SAP TEAM · ONBOARDING</div>
       <h1>Welcome aboard.</h1>
-      <p class="lede">Sign in with your work email so we can save your onboarding progress. Pick up right where you left off, any time — ten steps and you're fully set up.</p>
+      <p class="lede">Sign in with your work email so we can save your onboarding progress. Pick up right where you left off, any time — eleven steps and you're fully set up.</p>
       <div class="form">
         <label for="nameIn">Full name</label>
         <input id="nameIn" type="text" placeholder="e.g. Alex Papadopoulos" autocomplete="name" />
@@ -251,7 +252,7 @@
 
       <div class="progress">
         <div class="progress-top">
-          <div class="progress-count"><b id="doneCount">0</b> of <span id="totalCount">10</span> complete</div>
+          <div class="progress-count"><b id="doneCount">0</b> of <span id="totalCount">11</span> complete</div>
           <div class="progress-pct" id="pct">0%</div>
         </div>
         <div class="track"><div class="fill" id="fill"></div></div>
@@ -329,7 +330,7 @@
 
 <script>
 const NS = "gt_tech_sap";
-const K_TEMPLATE = NS + ":template_v2"; // v2 = 10-step list from updated xlsx (Jul 2026)
+const K_TEMPLATE = NS + ":template_v4"; // v4 = task 11 updated to include Udemy (Jul 2026)
 const K_ADMINS = NS + ":admins";
 const K_LAST = NS + ":lastemail";           // personal (per device)
 const empKey = (email) => NS + ":emp:" + email.toLowerCase().replace(/[^a-z0-9]/g,"_");
@@ -347,14 +348,15 @@ async function saveAdmins(){ await sSet(K_ADMINS, JSON.stringify(admins), true);
 const SEED = [
   { id:"t1", title:"Finish Bob Tasks", comment:"Provided in the Bob platform.", contact:"Sofia Theodoraki" },
   { id:"t2", title:"Complete the CV", comment:"Complete your CV in the specified format.", contact:"Mina Thomou" },
-  { id:"t3", title:"Microsoft Learn for Certifications", comment:"Link your professional email with your personal email.", contact:"Sofia Theodoraki" },
+  { id:"t8", title:"Create Signature", comment:"Create your email signature.", contact:"Sofia Theodoraki" },
   { id:"t7", title:"Activate your S-User", comment:"Once your S-User is created, you will receive an email from SAP.", contact:"Sofia Theodoraki" },
   { id:"t5", title:"Access OneDrive", comment:"Ask for permission to the TECH-SAP folder.", contact:"Sofia Theodoraki" },
   { id:"t6", title:"Download SAP GUI", comment:"The newest version is in the OneDrive folder.", contact:"Sofia Theodoraki" },
-  { id:"t8", title:"Create Signature", comment:"Create your email signature.", contact:"Sofia Theodoraki" },
+  { id:"t10", title:"Get included in SAP mailing list", comment:"You will be included in the SAP team mailing list by the IT department.", contact:"Sofia Theodoraki" },
   { id:"t4", title:"Learning Hub Subscription", comment:"Notify Sofia and proceed to a Learning Hub subscription.", contact:"Sofia Theodoraki" },
   { id:"t9", title:"Access SAP Team channel in Teams", comment:"Verify that you have access.", contact:"Sofia Theodoraki" },
-  { id:"t10", title:"Get included in SAP mailing list", comment:"You will be included in the SAP team mailing list by the IT department.", contact:"Sofia Theodoraki" }
+  { id:"t11", title:"Access ChatGPT, Claude and Udemy", comment:"Verify that you have access to the SAP team's AI tool accounts and the company's Udemy account.", contact:"Ilias Petrakos" },
+  { id:"t3", title:"Microsoft Learn for Certifications", comment:"Link your professional email with your personal email.", contact:"Sofia Theodoraki" }
 ];
 
 let template = [];
@@ -412,6 +414,11 @@ function flashSaved(){
 
 /* ---------- helpers ---------- */
 function initials(name){const p=(name||"").trim().split(/\s+/).filter(Boolean);if(!p.length)return"?";return (p[0][0]+(p[1]?p[1][0]:"")).toUpperCase();}
+function contactColorClass(name){
+  if(/mina/i.test(name)) return "alt";
+  if(/ilias/i.test(name)) return "gold";
+  return "";
+}
 function esc(s){return (s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]));}
 function pad(n){return String(n).padStart(2,"0");}
 function validEmail(e){return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);}
@@ -432,7 +439,7 @@ function render(){
   document.getElementById("editNote").style.display=editing?"block":"none";
 
   list.innerHTML=template.map((t,i)=>{
-    const av=/mina/i.test(t.contact)?"alt":"";
+    const av=contactColorClass(t.contact);
     const done=!!(emp&&emp.done&&emp.done[t.id]);
     const adm=isAdmin(emp&&emp.email);
     if(editing){
